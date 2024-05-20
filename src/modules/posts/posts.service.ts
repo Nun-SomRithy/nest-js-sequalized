@@ -1,4 +1,49 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { POST_REPOSITORY } from 'src/core/constants';
+import { Post } from './posts.entity';
+import { PostDto } from './dto/posts.dto';
+import { User } from '../user/user.entity';
 
 @Injectable()
-export class PostsService {}
+export class PostsService {
+    constructor(@Inject(POST_REPOSITORY) private readonly postRepository: typeof Post) { }
+
+
+    async create(post: PostDto, userId): Promise<Post> {
+        return await this.postRepository.create<Post>({ ...post, userId });
+    }
+
+    async findAll() : Promise<Post[]> {
+        return await this.postRepository.findAll<Post>({
+            include:[
+                {
+                    model:User,
+                    attributes:{exclude:['password']}
+                }]
+        })
+    } 
+
+    async findOne(id) : Promise<Post>{
+        return await this.postRepository.findOne({
+            where: {id},
+            include: [
+                {
+                    model:User,
+                    attributes: {exclude:['password']}
+                }
+            ]
+        })
+    }
+
+    async deleteById(id, userId){
+        return await this.postRepository.destroy({where: {id,userId}});
+    }
+
+
+
+    async updateById(id,data, userId) {
+        const [numberOfAffectedRows, [updatedPost]] = await this.postRepository.update({...data},{where: {id,userId},returning:true})
+        return {numberOfAffectedRows,updatedPost}
+    } 
+
+}
