@@ -39,13 +39,12 @@ export class PostsController {
     }
 
 
-
     @UseGuards(AuthGuard('jwt'))
     @Put(':id')
-    async update(@Param('id') id:number , post:PostDto, @Request() req) : Promise<PostEntity> {
-        const {numberOfAffectedRows, updatedPost} = await this.postService.updateById(id,post,req.user.id)
+    async update(@Param('id') id: number, @Body() post: PostDto, @Request() req): Promise<PostEntity> {
+        const { numberOfAffectedRows, updatedPost } = await this.postService.updateById(id, post, req.user.id);
 
-        if(numberOfAffectedRows === 0){
+        if (numberOfAffectedRows === 0) {
             throw new NotFoundException('This Post doesn\'t exist');
         }
 
@@ -53,7 +52,7 @@ export class PostsController {
     }
 
     @UseGuards(AuthGuard('jwt'))
-    @Delete()
+    @Delete(':id')
     async remove(@Param('id') id: number, @Request() req){
         const deleted = await this.postService.deleteById(id,req.user.id);
 

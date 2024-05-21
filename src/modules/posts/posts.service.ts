@@ -3,6 +3,8 @@ import { POST_REPOSITORY } from 'src/core/constants';
 import { Post } from './posts.entity';
 import { PostDto } from './dto/posts.dto';
 import { User } from '../user/user.entity';
+import { Comment } from '../comments/comments.entity';
+
 
 @Injectable()
 export class PostsService {
@@ -30,7 +32,11 @@ export class PostsService {
                 {
                     model:User,
                     attributes: {exclude:['password']}
-                }
+                },
+                {
+                    model: Comment, 
+                    attributes: {exclude:['postId']}
+                },
             ]
         })
     }
@@ -40,10 +46,10 @@ export class PostsService {
     }
 
 
-
     async updateById(id,data, userId) {
-        const [numberOfAffectedRows, [updatedPost]] = await this.postRepository.update({...data},{where: {id,userId},returning:true})
-        return {numberOfAffectedRows,updatedPost}
+        const [numberOfAffectedRows, [updatedPost]] = await this.postRepository.update({ ...data }, { where: { id, userId }, returning: true });
+
+        return { numberOfAffectedRows, updatedPost };
     } 
 
 }
